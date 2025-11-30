@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace CSharpDiscordWebhook;
 
@@ -18,7 +19,7 @@ public class WebhookResult<T>
 
 public class ErrorMessage
 {
-    public int Code { get; private set; }
-    public string Message { get; private set; } = string.Empty;
-    public Dictionary<string, object> Errors { get; private set; } = new();
+    [JsonInclude] public int Code { get; private set; }
+    [JsonInclude] public string Message { get; private set; } = string.Empty;
+    [JsonInclude] public Dictionary<string, string> Errors { get; private set; } = new();
 }
