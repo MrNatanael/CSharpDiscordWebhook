@@ -10,11 +10,13 @@ public class MessageBuilder
     public bool Tts { get; set; }
     public List<EmbedBuilder> Embeds { get; set; } = new();
     public AllowedMentions? AllowedMentions { get; set; }
-    public List<AttachmentBuilder> Attachments { get; set; } = new();
     public MessageFlags Flags { get; set; } = MessageFlags.NONE;
     public string? ThreadName { get; set; }
     public List<ulong> AppliedTags { get; set; } = new();
     public PollBuilder? Poll { get; set; }
+    // TODO: Finish components
+    
+    public List<AttachmentBuilder> Attachments { get; set; } = new();
 }
 
 public class AllowedMentions

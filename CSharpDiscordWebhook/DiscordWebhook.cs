@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -26,49 +27,31 @@ namespace CSharpDiscordWebhook
         }
         public async Task<bool> DeleteWebhookAsync()
         {
-            using var res = await Client.DeleteAsync(Url);
+            using var res = await Client.DeleteAsync(string.Empty);
             return res.StatusCode == HttpStatusCode.NoContent;
         }
         
-        public async Task<WebhookResult<Message?>> ExecuteAsync(MessageBuilder messageBuilder)
+        public async Task<WebhookResult<Message?>> ExecuteAsync(MessageBuilder messageBuilder, bool wait = false, bool withComponents = false)
         {
-            return await SendJsonMessageAsync<Message?, MessageBuilder>(HttpMethod.Post, messageBuilder);
-            /*
-            StringBuilder boundary = new();
-            boundary.Append("------------------------");
-            boundary.Append(DateTime.Now.Ticks);
+            List<string> queries = new();
+            string queriesStr = string.Empty;
+            
+            if(wait) queries.Add("wait=true");
+            if(withComponents) queries.Add("with_components=true");
 
-            MultipartFormDataContent httpContent = new(boundary.ToString());
-            foreach (var s in streams)
-            {
-                if (s.CanSeek) s.Position = 0;
-                StreamContent sContent = new(s);
-                sContent.Headers.ContentType = new("application/octet-stream");
-                httpContent.Add(sContent);
-            }
+            if (queries.Count > 0) queriesStr = $"?{string.Join("&", queries)}";
 
-            // JsonContent is not available on .net standard 2.0
-            using var msgStream = new MemoryStream();
-            await JsonSerializer.SerializeAsync(msgStream, messageBuilder, DefaultJsonOptions);
-
-            msgStream.Position = 0;
-
-            StreamContent msgContent = new(msgStream);
-            msgContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-            httpContent.Add(msgContent);
-
-            using var req = new HttpRequestMessage(HttpMethod.Post, Url);
-            req.Content = httpContent;
-            return await SendAsync<Message>(req);
-            */
+            if (messageBuilder.Attachments.Count > 0)
+                return await SendMessageWithAttachmentsAsync(messageBuilder, queriesStr);
+            
+            return await SendJsonMessageAsync<Message?, MessageBuilder>(HttpMethod.Post, messageBuilder, queriesStr);
         }
         
         public void Dispose() {Client.Dispose(); }
 
-        async Task<WebhookResult<TResult>> SendJsonMessageAsync<TResult, TJson>(HttpMethod method, TJson json)
+        async Task<WebhookResult<TResult>> SendJsonMessageAsync<TResult, TJson>(HttpMethod method, TJson json, string subPath = "")
         {
-            using var req = new HttpRequestMessage(method, Url);
+            using var req = new HttpRequestMessage(method, subPath);
             
             // JsonContent is not available on .net standard 2.0
             using var s = new MemoryStream();
@@ -80,6 +63,33 @@ namespace CSharpDiscordWebhook
             
             return await SendAsync<TResult>(req);
         }
+        async Task<WebhookResult<Message?>> SendMessageWithAttachmentsAsync(MessageBuilder messageBuilder,
+            string queriesStr)
+        {
+            var content = new MultipartFormDataContent();
+            var json = JsonSerializer.Serialize(messageBuilder, DefaultJsonOptions);
+            
+            content.Add(new StringContent(json, Encoding.UTF8, "application/json"), "payload_json");
+            
+            // Now add files
+            foreach (var attachment in messageBuilder.Attachments)
+            {
+                var stream = new StreamContent(attachment.Open());
+                stream.Headers.ContentType = new("application/octet-stream");
+                
+                content.Add(stream, $"files[{attachment.Id}]", attachment.Filename);
+            }
+            
+            using var req = new HttpRequestMessage(HttpMethod.Post, queriesStr);
+            req.Content = content;
+            
+            var r = await SendAsync<Message?>(req);
+            foreach(var attachment in messageBuilder.Attachments)
+                attachment.Dispose();
+
+            return r;
+        }
+        
         async Task<WebhookResult<T>> SendAsync<T>(HttpRequestMessage request)
         {
             using var resp = await Client.SendAsync(request);
@@ -109,7 +119,7 @@ namespace CSharpDiscordWebhook
                 Proxy = new WebProxy("http://127.0.0.1:8080"),
                 UseProxy = true
             };
-            Client = new(proxy);
+            Client = new(proxy) { BaseAddress = url };
         }
         public DiscordWebhook(ulong id, string token) : this(new Uri($"{API_PATH}/v{API_VERSION}/webooks/{id}/{token}")) {}
 
@@ -120,10 +130,14 @@ namespace CSharpDiscordWebhook
         {
             PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
             NumberHandling = JsonNumberHandling.AllowReadingFromString,
+            DefaultIgnoreCondition =  JsonIgnoreCondition.WhenWritingDefault,
             Converters =
             {
                 new AllowedMentionsJsonSerializer(),
-                new PollBuilderJsonSerializer()
+                new PollBuilderJsonSerializer(),
+                new DiscordColorJsonSerializer(),
+                new DiscordDateTimeJsonSerializer(),
+                new DiscordAttachmentsJsonSerializer()
             }
         };
 
