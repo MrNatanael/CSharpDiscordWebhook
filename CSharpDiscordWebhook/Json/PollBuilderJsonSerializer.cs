@@ -32,7 +32,7 @@ public class PollBuilderJsonSerializer : JsonConverter<PollBuilder>
         {
             writer.WritePropertyName("duration");
             new DurationHoursJonSerializer().Write(writer, value.Duration, options);
-            //JsonSerializer.Serialize(writer, value.Duration.Value, options);
+            //  JsonSerializer.Serialize(writer, value.Duration.Value, options);
         }
 
         if (value.AllowMultiselect)
