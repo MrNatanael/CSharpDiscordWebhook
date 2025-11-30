@@ -1,12 +1,22 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
-using CSharpDiscordWebhook.Json;
 
 namespace CSharpDiscordWebhook.Objects;
 
 public class PollBuilder
 {
+    public PollBuilder() { }
+    public PollBuilder(DateTime timestamp, Poll poll)
+    {
+        Question = poll.Question.Text;
+        foreach(var answer in poll.Answers)
+            Answers.Add(answer.PollMedia.Text);
+
+        Duration = poll.Expiry - timestamp;
+        AllowMultiselect = poll.AllowMultiselect;
+        Layout = poll.LayoutType;
+    }
+    
     public string? Question { get; set; }
     public List<string> Answers { get; set; } = new();
     public TimeSpan? Duration { get; set; }
