@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using System.Text;
 using CSharpDiscordWebhook.Objects;
 
 namespace CSharpDiscordWebhook.Tests;
@@ -27,9 +26,9 @@ public sealed class WebhookTests
     }
 
     [TestMethod]
-    public async Task TestPoll()
+    public async Task SendPoll()
     {
-        var r = await Utils.CreateWebhook().ExecuteAsync(new MessageBuilder
+        var r = await Utils.CreateWebhook().SendMessageAsync(new MessageBuilder
         {
             Poll = new()
             {
@@ -42,9 +41,9 @@ public sealed class WebhookTests
         Assert.IsTrue(r.Success, r.Error?.Message);
     }
     [TestMethod]
-    public async Task TestEmbeds()
+    public async Task SendEmbeds()
     {
-        var r = await Utils.CreateWebhook().ExecuteAsync(new MessageBuilder
+        var r = await Utils.CreateWebhook().SendMessageAsync(new MessageBuilder
         {
             Embeds = [
                 new EmbedBuilder
@@ -84,7 +83,7 @@ public sealed class WebhookTests
         Assert.IsTrue(r.Success, r.Error?.Message);
     }
     [TestMethod]
-    public async Task TestFiles()
+    public async Task SendFile()
     {
         byte[] wav = Utils.MakeWav();
         var slice = wav.AsSpan().Slice(44, 150);
@@ -92,7 +91,7 @@ public sealed class WebhookTests
         
         using var s = new MemoryStream(wav);
         
-        var r = await Utils.CreateWebhook().ExecuteAsync(new MessageBuilder
+        var r = await Utils.CreateWebhook().SendMessageAsync(new MessageBuilder
         {
             Attachments = [
                 new StreamAttachmentBuilder()
@@ -114,14 +113,43 @@ public sealed class WebhookTests
         });
         Assert.IsTrue(r.Success, r.Error?.Message);
     }
+    [TestMethod]
+    public async Task SendMessage()
+    {
+        var r = await Utils.CreateWebhook().SendMessageAsync(new MessageBuilder
+        {
+            Content = "Hello, World!",
+            Username = "Test Username"
+        }, wait: true);
+        
+        if(!r.Success) Assert.Fail(r.Error?.Message!);
+
+        this.MessageToEdit = r.Result;
+    }
 
     [TestMethod]
-    public async Task TestMessageEdit()
+    public async Task EditMessage()
     {
-        var r = await Utils.CreateWebhook().ExecuteAsync(new MessageBuilder
+        await SendMessage();
+
+        Random rand = new();
+        string text = $"Confirmation: {rand.Next()}";
+        var r = await Utils.CreateWebhook().EditMessageAsync(MessageToEdit!, modify =>
         {
-            Content = "Hello, World!"
-        }, wait: true);
-        Assert.IsTrue(r.Success, r.Error?.Message);
+            modify.Content = text;
+        });
+        
+        if(!r.Success) Assert.Fail(r.Error?.Message!);
+        if(r.Result?.Content != text) Assert.Fail("Content didn't change");
     }
+
+    [TestMethod]
+    public async Task DeleteMessage()
+    {
+        await SendMessage();
+        var r = await Utils.CreateWebhook().DeleteMessageAsync(MessageToEdit!.Id);
+        Assert.IsTrue(r.Result, r.Error?.Message);
+    }
+
+    private Message? MessageToEdit;
 }
