@@ -13,7 +13,13 @@ public abstract class AttachmentBuilder : IAttachmentStreamProvider
         return this.Open();
     }
 
+    /// <summary>
+    /// Attachment id
+    /// </summary>
     public uint Id { get; set; }
+    /// <summary>
+    /// Name of file attached
+    /// </summary>
     public string Filename { get; set; } = string.Empty;
 
     public AttachmentParameters Parameters { get; set; } = new();
@@ -41,18 +47,53 @@ public class AttachmentParameters
         IsRemix =
             attachment.Flags.HasValue && attachment.Flags.Value.HasFlag(AttachmentFlags.IS_REMIX);
     }
-
+    /// <summary>
+    /// The title of the file
+    /// </summary>
     public string? Title { get; set; }
+    /// <summary>
+    /// Description for the file (max 1024 characters)
+    /// </summary>
     public string? Description { get; set; }
+    /// <summary>
+    /// The attachment's media type, see https://en.wikipedia.org/wiki/Media_type
+    /// </summary>
     public string? MimeType { get; set; }
+    /// <summary>
+    /// Size of file in bytes
+    /// </summary>
     public ulong? Size { get; set; }
+    /// <summary>
+    /// Source url of file
+    /// </summary>
     public string? Url { get; set; }
+    /// <summary>
+    /// A proxied url of file
+    /// </summary>
     public string? ProxyUrl { get; set; }
+    /// <summary>
+    /// Width of file (if image)
+    /// </summary>
     public uint? Width { get; set; }
+    /// <summary>
+    /// Height of file (if image)
+    /// </summary>
     public uint? Height { get; set; }
+    /// <summary>
+    /// Whether this attachment is ephemeral
+    /// </summary>
     public bool? Ephemeral { get; set; }
+    /// <summary>
+    /// The duration of the audio file (currently for voice messages)
+    /// </summary>
     public TimeSpan? Duration { get; set; }
+    /// <summary>
+    /// Base64 encoded bytearray representing a sampled waveform (currently for voice messages)
+    /// </summary>
     public string? Waveform { get; set; }
+    /// <summary>
+    /// Attachment flags
+    /// </summary>
     public bool IsRemix { get; set; }
 }
 

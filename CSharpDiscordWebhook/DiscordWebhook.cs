@@ -13,14 +13,26 @@ using CSharpDiscordWebhook.Objects;
 
 namespace CSharpDiscordWebhook;
 
+/// <summary>
+/// Discord webhook API wrapper
+/// </summary>
 public class DiscordWebhook : IDisposable
 {
+    /// <summary>
+    /// Get webhook object
+    /// </summary>
+    /// <returns>API result</returns>
     public async Task<WebhookResult<Webhook>> GetAsync()
     {
         using var req = new HttpRequestMessage(HttpMethod.Get, string.Empty);
         return await SendAsync<Webhook>(req);
     }
 
+    /// <summary>
+    /// Modify webhook object
+    /// </summary>
+    /// <param name="callback">This is called with the current webhook information that can be modified</param>
+    /// <returns>If successful, then modified webhook is returned</returns>
     public async Task<WebhookResult<Webhook>> ModifyAsync(ModifyWebhookCallback callback)
     {
         var r = await GetAsync();
@@ -32,18 +44,34 @@ public class DiscordWebhook : IDisposable
         return await SendJsonMessageAsync<Webhook, WebhookModify>(new("PATCH"), modify);
     }
 
+    /// <summary>
+    /// Delete webhook object
+    /// </summary>
+    /// <returns>True if the webhook object has been deleted</returns>
     public async Task<bool> DeleteWebhookAsync()
     {
         using var res = await Client.DeleteAsync(string.Empty);
         return res.StatusCode == HttpStatusCode.NoContent;
     }
 
+    /// <summary>
+    /// Get a message data
+    /// </summary>
+    /// <param name="id">The message id</param>
+    /// <returns>If successful, the message information is returned</returns>
     public async Task<WebhookResult<Message>> GetMessageAsync(ulong id)
     {
         using var req = new HttpRequestMessage(HttpMethod.Get, $"/messages/{id}");
         return await SendAsync<Message>(req);
     }
 
+    /// <summary>
+    /// Edit message by its ID
+    /// </summary>
+    /// <param name="id">The message id</param>
+    /// <param name="callback">This is called with the current message information that can be edited</param>
+    /// <param name="withComponents">True if components should be sent</param>
+    /// <returns>If successful, the modified message is returned</returns>
     public async Task<WebhookResult<Message>> EditMessageAsync(ulong id, ModifyMessageCallback callback,
         bool withComponents = false)
     {
@@ -53,6 +81,13 @@ public class DiscordWebhook : IDisposable
         return await EditMessageAsync(src.Result!, callback, withComponents);
     }
 
+    /// <summary>
+    /// Edit message by using a message object as the source
+    /// </summary>
+    /// <param name="msg">The message object</param>
+    /// <param name="callback"></param>
+    /// <param name="withComponents">True if components should be sent</param>
+    /// <returns>If successful, the modified message is returned</returns>
     public async Task<WebhookResult<Message>> EditMessageAsync(Message msg, ModifyMessageCallback callback,
         bool withComponents = false)
     {
@@ -67,6 +102,11 @@ public class DiscordWebhook : IDisposable
         return await EditMessageWithAttachmentsAsync(modify, queriesStr);
     }
 
+    /// <summary>
+    /// Delete a message by its id
+    /// </summary>
+    /// <param name="id">The message id</param>
+    /// <returns>True if the message has been deleted</returns>
     public async Task<WebhookResult<bool>> DeleteMessageAsync(ulong id)
     {
         using var msg = new HttpRequestMessage(HttpMethod.Delete, $"/messages/{id}");
@@ -78,6 +118,13 @@ public class DiscordWebhook : IDisposable
         return new(false, await JsonSerializer.DeserializeAsync<ErrorMessage>(s, DefaultJsonOptions));
     }
 
+    /// <summary>
+    /// Send a message
+    /// </summary>
+    /// <param name="messageBuilder">Message parameters</param>
+    /// <param name="wait">If true, the created message will be returned</param>
+    /// <param name="withComponents">True if components should be sent</param>
+    /// <returns>If successful and <param name="wait"/> is set to <value>true</value>, the created message is returned </returns>
     public async Task<WebhookResult<Message?>> SendMessageAsync(MessageBuilder messageBuilder, bool wait = false,
         bool withComponents = false)
     {
@@ -95,6 +142,9 @@ public class DiscordWebhook : IDisposable
         return await SendJsonMessageAsync<Message?, MessageBuilder>(HttpMethod.Post, messageBuilder, queriesStr);
     }
 
+    /// <summary>
+    /// Dispose webhook wrapper
+    /// </summary>
     public void Dispose()
     {
         Client.Dispose();
@@ -191,6 +241,11 @@ public class DiscordWebhook : IDisposable
         return new(default, await JsonSerializer.DeserializeAsync<ErrorMessage>(s, DefaultJsonOptions));
     }
 
+    /// <summary>
+    /// Create webhook wrapper from URL
+    /// </summary>
+    /// <param name="url">Webhook URL</param>
+    /// <exception cref="FormatException">Thrown if the URL format is not a valid Discord webhook URL</exception>
     public DiscordWebhook(Uri url)
     {
         var match = _uriValidator.Match(url.AbsoluteUri);
@@ -201,18 +256,26 @@ public class DiscordWebhook : IDisposable
             url = new Uri($"{API_PATH}/v{API_VERSION}/webhooks/{match.Groups[2].Value}/{match.Groups[3].Value}");
 
         Url = url;
-        var proxy = new DiscordWebhookHttpHandler(url)
+        var handler = new DiscordWebhookHttpHandler(url)
         {
             #if DEBUG
             Proxy = new WebProxy("http://127.0.0.1:8080"),
             UseProxy = true
             #endif
         };
-        Client = new(proxy);
+        Client = new(handler);
         Client.BaseAddress = new("https://discord.com/"); // Will be overriden by our handler
     }
+    /// <summary>
+    /// Create webhook wrapper from ID and Token
+    /// </summary>
+    /// <param name="id">Webhook ID</param>
+    /// <param name="token">Webhook token</param>
     public DiscordWebhook(ulong id, string token) : this(new Uri($"{API_PATH}/v{API_VERSION}/webooks/{id}/{token}")) { }
 
+    /// <summary>
+    /// Webhook URL
+    /// </summary>
     public Uri Url { get; }
     private HttpClient Client { get; }
 
@@ -232,7 +295,14 @@ public class DiscordWebhook : IDisposable
         }
     };
 
+    /// <summary>
+    /// Base API path
+    /// </summary>
     public const string API_PATH = "https://discord.com/api";
+    
+    /// <summary>
+    /// Default API version
+    /// </summary>
     public const int API_VERSION = 10;
 
     private static readonly Regex _uriValidator =
@@ -258,5 +328,11 @@ class DiscordWebhookHttpHandler(Uri basePath) : HttpClientHandler
     protected Uri BasePath { get; } = basePath;
 }
 
+/// <summary>
+/// Webhook message modify callback
+/// </summary>
 public delegate void ModifyMessageCallback(MessageModify modify);
+/// <summary>
+/// Webhook object modify callback
+/// </summary>
 public delegate void ModifyWebhookCallback(WebhookModify modify);
