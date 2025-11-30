@@ -1,7 +1,7 @@
 namespace CSharpDiscordWebhook.Objects;
 
-public class WebhookModify
+public class WebhookModify(Webhook webhook)
 {
-    public string Name { get; set; } = string.Empty;
-    public string? Avatar { get; set; }
+    public string Name { get; set; } = webhook.Name!;
+    public string? Avatar { get; set; } = webhook.Avatar;
 }

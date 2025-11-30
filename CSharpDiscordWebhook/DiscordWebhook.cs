@@ -38,6 +38,16 @@ namespace CSharpDiscordWebhook
             
             if(wait) queries.Add("wait=true");
             if(withComponents) queries.Add("with_components=true");
+    public async Task<WebhookResult<Webhook>> ModifyAsync(ModifyWebhookCallback callback)
+    {
+        var r = await GetAsync();
+        if(!r.Success) return r;
+
+        var modify = new WebhookModify(r.Result!);
+        callback(modify);
+        
+        return await SendJsonMessageAsync<Webhook, WebhookModify>(new("PATCH"), modify);
+    }
 
             if (queries.Count > 0) queriesStr = $"?{string.Join("&", queries)}";
 
@@ -147,3 +157,4 @@ namespace CSharpDiscordWebhook
         private static readonly Regex _uriValidator = new(@"https:\/\/discord.com\/api(\/v\d+)?\/webhooks\/(\d+)\/([\w\W]+)");
     }
 }
+public delegate void ModifyWebhookCallback(WebhookModify modify);

@@ -19,9 +19,9 @@ public sealed class WebhookTests
     {
         Random rand = new();
         string name = $"Test Webhook {rand.Next()}";
-        var r = await Utils.CreateWebhook().ModifyAsync(new WebhookModify()
+        var r = await Utils.CreateWebhook().ModifyAsync(modify =>
         {
-            Name = name
+            modify.Name = name;
         });
         Assert.IsTrue(r.Success && r.Result!.Name == name, r.Error?.Message);
     }
