@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace CSharpDiscordWebhook.Objects;
 
@@ -21,10 +22,9 @@ public class MessageBuilder
 
 public class AllowedMentions
 {
-    public AllowedMentionType? Parse { get; set; }
+    [JsonPropertyName("parse")] public List<AllowedMentionType>? Types { get; set; }
     public List<ulong>? Roles { get; set; }
     public List<ulong>? Users { get; set; }
-    public bool? RepliedUser { get; set; }
 }
 
 public readonly struct AllowedMentionType
