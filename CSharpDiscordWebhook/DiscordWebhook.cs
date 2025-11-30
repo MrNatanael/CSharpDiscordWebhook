@@ -197,7 +197,7 @@ public class DiscordWebhook : IDisposable
         if (!match.Success)
             throw new FormatException("Invalid webhook url format");
 
-        if (!match.Groups[1].Success || match.Groups[3].Value.EndsWith("/"))
+        if (!match.Groups[1].Success)
             url = new Uri($"{API_PATH}/v{API_VERSION}/webhooks/{match.Groups[2].Value}/{match.Groups[3].Value}");
 
         Url = url;
@@ -207,9 +207,8 @@ public class DiscordWebhook : IDisposable
             UseProxy = true
         };
         Client = new(proxy);
-        Client.BaseAddress = new("https://discord.com/");
+        Client.BaseAddress = new("https://discord.com/"); // Will be overriden by our handler
     }
-
     public DiscordWebhook(ulong id, string token) : this(new Uri($"{API_PATH}/v{API_VERSION}/webooks/{id}/{token}")) { }
 
     public Uri Url { get; }
