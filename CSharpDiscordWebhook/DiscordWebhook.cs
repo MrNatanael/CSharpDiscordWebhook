@@ -203,8 +203,10 @@ public class DiscordWebhook : IDisposable
         Url = url;
         var proxy = new DiscordWebhookHttpHandler(url)
         {
+            #if DEBUG
             Proxy = new WebProxy("http://127.0.0.1:8080"),
             UseProxy = true
+            #endif
         };
         Client = new(proxy);
         Client.BaseAddress = new("https://discord.com/"); // Will be overriden by our handler
