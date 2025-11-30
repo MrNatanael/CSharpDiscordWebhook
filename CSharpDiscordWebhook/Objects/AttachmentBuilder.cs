@@ -16,7 +16,7 @@ public abstract class AttachmentBuilder : IAttachmentStreamProvider
     public uint Id { get; set; }
     public string Filename { get; set; } = string.Empty;
 
-    public AttachmentParameters? Parameters { get; set; }
+    public AttachmentParameters Parameters { get; set; } = new();
 }
 
 public class AttachmentParameters
