@@ -17,10 +17,25 @@ public class PollBuilder
         Layout = poll.LayoutType;
     }
     
+    /// <summary>
+    /// The question of the poll. 
+    /// </summary>
     public string? Question { get; set; }
+    /// <summary>
+    /// Each of the answers available in the poll, up to 10
+    /// </summary>
     public List<string> Answers { get; set; } = new();
+    /// <summary>
+    /// Number of hours the poll should be open for, up to 32 days. Defaults to 24
+    /// </summary>
     public TimeSpan? Duration { get; set; }
+    /// <summary>
+    /// Whether a user can select multiple answers
+    /// </summary>
     public bool AllowMultiselect { get; set; }
+    /// <summary>
+    /// The layout type of the poll
+    /// </summary>
     public PollLayoutType Layout { get; set; }
 }
 

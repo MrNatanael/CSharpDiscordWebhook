@@ -18,13 +18,31 @@ public class MessageModify
             Attachments.Add(new AttachmentModify(attachment));
     }
 
+    /// <summary>
+    /// Original message ID
+    /// </summary>
     [JsonIgnore] public ulong Id { get; }
+    /// <summary>
+    /// New message content
+    /// </summary>
     public string? Content { get; set; }
+    /// <summary>
+    /// New message embed list
+    /// </summary>
     public List<EmbedBuilder> Embeds { get; set; } = new();
+    /// <summary>
+    /// New allowed mentions
+    /// </summary>
     public AllowedMentions? AllowedMentions { get; set; }
+    /// <summary>
+    /// New message flags
+    /// </summary>
     public MessageFlags Flags { get; set; } = MessageFlags.NONE;
 
     // TODO: Finish components
+    /// <summary>
+    /// New message attachments <remarks>Attachments can be removed and added, but editing is mostly ignored or returns errors</remarks>
+    /// </summary>
     public List<AttachmentModify> Attachments { get; set; } = new();
 }
 
@@ -34,8 +52,14 @@ public class AttachmentModify(ulong id, string filename)
     {
         Parameters = new(attachment);
     }
-
+    
+    /// <summary>
+    /// The original attachment ID
+    /// </summary>
     public ulong Id { get; } = id;
+    /// <summary>
+    /// The original attachment filename
+    /// </summary>
     public string Filename { get; } = filename;
     public AttachmentParameters Parameters { get; set; } = new();
     public IAttachmentStreamProvider? StreamProvider { get; set; }

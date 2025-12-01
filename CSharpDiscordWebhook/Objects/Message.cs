@@ -6,35 +6,104 @@ namespace CSharpDiscordWebhook.Objects;
 
 public class Message
 {
+    /// <summary>
+    /// ID of the message
+    /// </summary>
     [JsonInclude] public ulong Id { get; private set; }
+    /// <summary>
+    /// ID of the channel the message was sent in
+    /// </summary>
     [JsonInclude] public ulong ChannelId { get; private set; }
+    /// <summary>
+    /// Contents of the message
+    /// </summary>
     [JsonInclude] public string? Content { get; private set; }
+    /// <summary>
+    /// Type of message
+    /// </summary>
     [JsonInclude] public MessageType Type { get; private set; }
+    /// <summary>
+    /// Message flags
+    /// </summary>
     [JsonInclude] public MessageFlags? Flags { get; private set; }
+    /// <summary>
+    /// Users specifically mentioned in the message
+    /// </summary>
     [JsonInclude] public IReadOnlyList<User> Mentions { get; private set; } = new List<User>();
+    /// <summary>
+    /// Roles specifically mentioned in this message
+    /// </summary>
     [JsonInclude] public IReadOnlyList<ulong> MentionRoles { get; private set; } = new List<ulong>();
+    /// <summary>
+    /// Channels specifically mentioned in this message
+    /// </summary>
     [JsonInclude] public IReadOnlyList<ChannelMention>? ChannelMentions { get; private set; }
+    /// <summary>
+    /// Any attached files
+    /// </summary>
     [JsonInclude] public IReadOnlyList<Attachment> Attachments { get; private set; } = new List<Attachment>();
+    /// <summary>
+    /// Any embedded content
+    /// </summary>
     [JsonInclude] public IReadOnlyList<Embed> Embeds { get; private set; } = new List<Embed>();
+    /// <summary>
+    /// When this message was sent
+    /// </summary>
     [JsonInclude] public DateTime Timestamp { get; private set; }
+    /// <summary>
+    /// When this message was edited
+    /// </summary>
     [JsonInclude] public DateTime? EditedTimestamp { get; private set; }
 
+    /// <summary>
+    /// Sent if the message contains components like buttons, action rows, or other interactive components
+    /// </summary>
     [JsonInclude]
     public IReadOnlyList<MessageComponent> Components { get; private set; } = new List<MessageComponent>();
 
+    /// <summary>
+    /// The author of this message <remarks>Not guaranteed to be a valid user</remarks>
+    /// </summary>
     [JsonInclude] public User Author { get; private set; } = new();
+    /// <summary>
+    /// Whether this message is pinned
+    /// </summary>
     [JsonInclude] public bool Pinned { get; private set; }
+    /// <summary>
+    /// Whether this message mentions everyone
+    /// </summary>
     [JsonInclude] public bool MentionEveryone { get; private set; }
+    /// <summary>
+    /// Whether this was a TTS message
+    /// </summary>
     [JsonInclude] public bool Tts { get; private set; }
+    /// <summary>
+    /// This is the webhook's id
+    /// </summary>
     [JsonInclude] public ulong WebhookId { get; private set; }
+    /// <summary>
+    /// A poll!
+    /// </summary>
     [JsonInclude] public Poll? Poll { get; private set; }
 }
 
 public class ChannelMention
 {
+    /// <summary>
+    /// ID of the channel
+    /// </summary>
     [JsonInclude] public ulong Id { get; private set; }
+    /// <summary>
+    /// ID of the guild containing the channel
+    /// </summary>
     [JsonInclude] public ulong GuildId { get; private set; }
+    /// <summary>
+    /// The type of channel
+    /// </summary>
     [JsonInclude] public ChannelType Type { get; private set; }
+    /// <summary>
+    /// The name of the channel
+    /// </summary>
     [JsonInclude] public string Name { get; private set; } = string.Empty;
 }
 

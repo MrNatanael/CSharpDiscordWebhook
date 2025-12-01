@@ -101,34 +101,58 @@ public class AttachmentParameters
 
 public interface IAttachmentStreamProvider : IDisposable
 {
+    /// <summary>
+    /// Open attachment stream
+    /// </summary>
+    /// <returns>Opened stream</returns>
     public Stream Open();
 }
 
 public class FileAttachmentProvider : IAttachmentStreamProvider
 {
+    /// <summary>
+    /// Dispose file stream
+    /// </summary>
     public void Dispose()
     {
         _fs?.Dispose();
     }
 
+    /// <summary>
+    /// Open file stream
+    /// </summary>
+    /// <returns>File stream</returns>
     public Stream Open()
     {
         if (_fs != null) return _fs;
         return (_fs = Source?.OpenRead())!;
     }
 
+    /// <summary>
+    /// Source file
+    /// </summary>
     public FileInfo? Source { get; set; }
     private FileStream? _fs;
 }
 
 public class StreamAttachmentProvider : IAttachmentStreamProvider
 {
+    /// <summary>
+    /// The provided stream is *NOT* disposed by this function, you need to dispose it yourself
+    /// </summary>
     public void Dispose()
     {
     }
 
+    /// <summary>
+    /// Returns the provided stream
+    /// </summary>
+    /// <returns>The provided stream</returns>
     public Stream Open() => Stream!;
-
+    
+    /// <summary>
+    /// Provided stream
+    /// </summary>
     public Stream? Stream { get; set; }
 }
 
@@ -138,16 +162,26 @@ public class StreamAttachmentProvider : IAttachmentStreamProvider
 
 public class FileAttachmentBuilder : AttachmentBuilder
 {
+    /// <summary>
+    /// Dispose file stream
+    /// </summary>
     public override void Dispose()
     {
         _provider.Dispose();
     }
-
+    
+    /// <summary>
+    /// Open file stream
+    /// </summary>
+    /// <returns>File stream</returns>
     protected internal override Stream Open()
     {
         return _provider.Open();
     }
 
+    /// <summary>
+    /// Source file
+    /// </summary>
     public FileInfo? Source
     {
         get => _provider.Source;
@@ -159,9 +193,19 @@ public class FileAttachmentBuilder : AttachmentBuilder
 
 public class StreamAttachmentBuilder : AttachmentBuilder
 {
+    /// <summary>
+    /// The provided stream is *NOT* disposed by this function, you need to dispose it yourself
+    /// </summary>
     public override void Dispose() => _provider.Dispose();
+    /// <summary>
+    /// Returns the provided stream
+    /// </summary>
+    /// <returns>The provided stream</returns>
     protected internal override Stream Open() => _provider.Open();
 
+    /// <summary>
+    /// Provided stream
+    /// </summary>
     public Stream? Stream
     {
         get => _provider.Stream;
