@@ -3,7 +3,7 @@
 Simple C# written code to send messages embeds and files using discord webhooks
 
 [![Patreon](https://badgen.net/badge/icon/Ko-fi?icon=kofi&label=Support)](https://ko-fi.com/natanm)
-[![NuGet](https://badgen.net/badge/icon/nuget?icon=nuget&label=Package)](https://www.nuget.org/packages/CSharpDiscordWebhook.NET/)
+[![NuGet](https://badgen.net/badge/icon/nuget?icon=nuget&label=Package)](https://www.nuget.org/packages/CSharpDiscordWebhook/)
 
 **Getting started**
 > Creating a webhook instance
