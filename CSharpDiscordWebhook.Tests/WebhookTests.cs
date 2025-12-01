@@ -33,7 +33,12 @@ public sealed class WebhookTests
             Poll = new()
             {
                 Question = "Is this working??",
-                Answers = [ "Yes", "No", "I Don't Know™"],
+                Answers =
+                [
+                    new PollAnswerBuilder { Text = "Yes", Emoji = new("😎") },
+                    new PollAnswerBuilder { Text = "No", Emoji = new("🤡") },
+                    new PollAnswerBuilder { Text = "I Don't Know™", Emoji = new("☠️") }
+                ],
                 Duration = TimeSpan.FromHours(15),
                 AllowMultiselect = true
             }

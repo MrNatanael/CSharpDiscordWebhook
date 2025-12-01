@@ -37,11 +37,11 @@ public class PollMedia
     /// <summary>
     /// The text of the field
     /// </summary>
-    [JsonInclude] public string Text { get; private set; } = string.Empty;
+    [JsonInclude] public string Text { get; internal set; } = string.Empty;
     /// <summary>
     /// The emoji of the field
     /// </summary>
-    [JsonInclude] public Emoji? Emoji { get; private set; }
+    [JsonInclude] public Emoji? Emoji { get; internal set; }
 }
 
 public class PollAnswer

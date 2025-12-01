@@ -16,14 +16,18 @@ public class PollBuilderJsonSerializer : JsonConverter<PollBuilder>
     {
         writer.WriteStartObject();
         
-        WritePollMediaObject(writer, "question", value.Question);
+        WritePollMediaObject(writer, "question", new PollMedia { Text = value.Question }, options);
         
         writer.WritePropertyName("answers");
         writer.WriteStartArray();
         foreach (var answer in value.Answers)
         {
             writer.WriteStartObject();
-            WritePollMediaObject(writer, "poll_media", answer);
+            WritePollMediaObject(writer, "poll_media", new PollMedia()
+            {
+                Text = answer.Text,
+                Emoji = answer.Emoji
+            }, options);
             writer.WriteEndObject();
         }
         writer.WriteEndArray();
@@ -50,14 +54,19 @@ public class PollBuilderJsonSerializer : JsonConverter<PollBuilder>
         writer.WriteEndObject();
     }
 
-    void WritePollMediaObject(Utf8JsonWriter writer, string property, string? value)
+    void WritePollMediaObject(Utf8JsonWriter writer, string property, PollMedia media, JsonSerializerOptions options)
     {
         writer.WritePropertyName(property);
         writer.WriteStartObject();
         
         writer.WritePropertyName("text");
-        if(value == null) writer.WriteNullValue();
-        else writer.WriteStringValue(value);
+        writer.WriteStringValue(media.Text);
+
+        if (media.Emoji != null)
+        {
+            writer.WritePropertyName("emoji");
+            JsonSerializer.Serialize(writer, media.Emoji, options);
+        }
         
         writer.WriteEndObject();
     }

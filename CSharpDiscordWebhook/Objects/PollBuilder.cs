@@ -16,15 +16,15 @@ public class PollBuilder
         AllowMultiselect = poll.AllowMultiselect;
         Layout = poll.LayoutType;
     }
-    
+
     /// <summary>
     /// The question of the poll. 
     /// </summary>
-    public string? Question { get; set; }
+    public string Question { get; set; } = string.Empty;
     /// <summary>
     /// Each of the answers available in the poll, up to 10
     /// </summary>
-    public List<string> Answers { get; set; } = new();
+    public List<PollAnswerBuilder> Answers { get; set; } = new();
     /// <summary>
     /// Number of hours the poll should be open for, up to 32 days. Defaults to 24
     /// </summary>
@@ -37,6 +37,14 @@ public class PollBuilder
     /// The layout type of the poll
     /// </summary>
     public PollLayoutType Layout { get; set; }
+}
+
+public class PollAnswerBuilder
+{
+    public string Text { get; set; } = string.Empty;
+    public Emoji? Emoji { get; set; }
+
+    public static implicit operator PollAnswerBuilder(string s) => new() { Text = s };
 }
 
 public enum PollLayoutType : int
