@@ -57,10 +57,17 @@ await webhook.SendMessageAsync(new MessageBuilder
    ],
    Poll = new PollBuilder 
    {
-       Question = "Poll Question",
-       Answers = [ "Answer 1", "Answer 2", "Answer 3" ],
-       Duration = TimeSpan.FromHours(1), // Minimum is 1
-       AllowMultiSelect = true
+        Question = "Poll Question",
+        Answers = [
+            new PollAnswerBuilder { Text = "Answer 1", Emoji = new("1️⃣") },
+            new PollAnswerBuilder { Text = "Answer 2", Emoji = new("2️⃣") },
+            new PollAnswerBuilder { Text = "Answer 3", Emoji = new("3️⃣️") },
+            // Answers can also be provided as a simple string
+            "Answer 4",
+            "Answer 5"
+        ],
+        Duration = TimeSpan.FromHours(1), // Minimum is 1
+        AllowMultiSelect = true
    }
 });
 ```
