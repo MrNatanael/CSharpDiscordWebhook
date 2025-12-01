@@ -19,28 +19,28 @@ public class EmbedBuilder
         Color = embed.Color;
 
         if (embed.Footer != null)
-            Footer = new(embed.Footer);
+            Footer = new EmbedFooterBuilder(embed.Footer);
 
         if (embed.Image != null)
-            Image = new(embed.Image);
+            Image = new EmbedMediaBuilder(embed.Image);
 
         if (embed.Thumbnail != null)
-            Thumbnail = new(embed.Thumbnail);
+            Thumbnail = new EmbedMediaBuilder(embed.Thumbnail);
 
         if (embed.Video != null)
-            Video = new(embed.Video);
+            Video = new EmbedMediaBuilder(embed.Video);
 
         if (embed.Provider != null)
-            Provider = new(embed.Provider);
+            Provider = new EmbedProviderBuilder(embed.Provider);
 
         if (embed.Author != null)
-            Author = new(embed.Author);
+            Author = new EmbedAuthorBuilder(embed.Author);
 
         if (embed.Fields != null)
         {
-            Fields = new();
+            Fields = new List<EmbedFieldBuilder>();
             foreach (var field in embed.Fields)
-                Fields.Add(new(field));
+                Fields.Add(new EmbedFieldBuilder(field));
         }
     }
 
@@ -48,46 +48,57 @@ public class EmbedBuilder
     /// Title of embed
     /// </summary>
     public string? Title { get; set; }
+
     /// <summary>
     /// Type of embed <remarks>Always "rich" for webhook embeds</remarks>
     /// </summary>
     public string Type { get; } = "rich";
+
     /// <summary>
     /// Description of embed
     /// </summary>
     public string? Description { get; set; }
+
     /// <summary>
     /// Url of embed
     /// </summary>
     public string? Url { get; set; }
+
     /// <summary>
     /// Timestamp of embed content
     /// </summary>
     public DateTime? Timestamp { get; set; }
+
     /// <summary>
     /// Color code of the embed
     /// </summary>
     public Color? Color { get; set; }
+
     /// <summary>
     /// Footer information
     /// </summary>
     public EmbedFooterBuilder? Footer { get; set; }
+
     /// <summary>
     /// Image information
     /// </summary>
     public EmbedMediaBuilder? Image { get; set; }
+
     /// <summary>
     /// Thumbnail information
     /// </summary>
     public EmbedMediaBuilder? Thumbnail { get; set; }
+
     /// <summary>
     /// Video information
     /// </summary>
     public EmbedMediaBuilder? Video { get; set; }
+
     /// <summary>
     /// Provider information
     /// </summary>
     public EmbedProviderBuilder? Provider { get; set; }
+
     /// <summary>
     /// Author information
     /// </summary>
@@ -111,14 +122,17 @@ public class EmbedFooterBuilder
         IconUrl = footer.IconUrl;
         ProxyIconUrl = footer.ProxyIconUrl;
     }
+
     /// <summary>
     /// Footer text
     /// </summary>
     public string Text { get; set; } = string.Empty;
+
     /// <summary>
     /// Url of footer icon <remarks>Only supports http(s) and attachments</remarks>
     /// </summary>
     public string? IconUrl { get; set; }
+
     /// <summary>
     /// A proxied url of footer icon
     /// </summary>
@@ -143,14 +157,17 @@ public class EmbedMediaBuilder
     /// Source url of media
     /// </summary>
     public string Url { get; set; } = string.Empty;
+
     /// <summary>
     /// Proxied url of media
     /// </summary>
     public string? ProxyUrl { get; set; }
+
     /// <summary>
     /// Width of media
     /// </summary>
     public int? Width { get; set; }
+
     /// <summary>
     /// Height of media
     /// </summary>
@@ -173,6 +190,7 @@ public class EmbedProviderBuilder
     /// Name of provider
     /// </summary>
     public string? Name { get; set; }
+
     /// <summary>
     /// Url of provider
     /// </summary>
@@ -197,14 +215,17 @@ public class EmbedAuthorBuilder
     /// Name of author
     /// </summary>
     public string Name { get; set; } = string.Empty;
+
     /// <summary>
     /// Url of author <remarks>Only supports https</remarks>
     /// </summary>
     public string? Url { get; set; }
+
     /// <summary>
     /// Url of author icon <remarks>only supports http(s) and attachments</remarks>
     /// </summary>
     public string? IconUrl { get; set; }
+
     /// <summary>
     /// Proxied url of author icon
     /// </summary>
@@ -228,10 +249,12 @@ public class EmbedFieldBuilder
     /// Name of the field
     /// </summary>
     public string Name { get; set; } = string.Empty;
+
     /// <summary>
     /// Value of the field
     /// </summary>
     public string Value { get; set; } = string.Empty;
+
     /// <summary>
     /// Whether this field should display inline
     /// </summary>

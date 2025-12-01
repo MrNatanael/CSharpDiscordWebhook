@@ -6,6 +6,7 @@ public class WebhookModify(Webhook webhook)
     /// The new webhook default username
     /// </summary>
     public string Name { get; set; } = webhook.Name!;
+
     /// <summary>
     /// The new webhook default avatar
     /// </summary>

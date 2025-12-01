@@ -14,7 +14,7 @@ public class DurationHoursJonSerializer : JsonConverter<TimeSpan?>
 
     public override void Write(Utf8JsonWriter writer, TimeSpan? value, JsonSerializerOptions options)
     {
-        if(value == null) writer.WriteNullValue();
+        if (value == null) writer.WriteNullValue();
         else writer.WriteNumberValue((int)value.Value.TotalHours);
     }
 }

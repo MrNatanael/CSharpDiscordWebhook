@@ -18,10 +18,7 @@ public sealed class WebhookTests
     {
         Random rand = new();
         string name = $"Test Webhook {rand.Next()}";
-        var r = await Utils.CreateWebhook().ModifyAsync(modify =>
-        {
-            modify.Name = name;
-        });
+        var r = await Utils.CreateWebhook().ModifyAsync(modify => { modify.Name = name; });
         Assert.IsTrue(r.Success && r.Result!.Name == name, r.Error?.Message);
     }
 
@@ -45,12 +42,14 @@ public sealed class WebhookTests
         });
         Assert.IsTrue(r.Success, r.Error?.Message);
     }
+
     [TestMethod]
     public async Task SendEmbeds()
     {
         var r = await Utils.CreateWebhook().SendMessageAsync(new MessageBuilder
         {
-            Embeds = [
+            Embeds =
+            [
                 new EmbedBuilder
                 {
                     Description = "Red",
@@ -76,7 +75,8 @@ public sealed class WebhookTests
                     {
                         Text = "Test Footer"
                     },
-                    Fields = [
+                    Fields =
+                    [
                         new() { Name = "Field 1", Value = "Value 1", Inline = true },
                         new() { Name = "Field 2", Value = "Value 2", Inline = true },
                         new() { Name = "Field 3", Value = "Value 3" },
@@ -87,18 +87,20 @@ public sealed class WebhookTests
         });
         Assert.IsTrue(r.Success, r.Error?.Message);
     }
+
     [TestMethod]
     public async Task SendFile()
     {
         byte[] wav = Utils.MakeWav();
         var slice = wav.AsSpan().Slice(44, 150);
         string b64 = Convert.ToBase64String(slice);
-        
+
         using var s = new MemoryStream(wav);
-        
+
         var r = await Utils.CreateWebhook().SendMessageAsync(new MessageBuilder
         {
-            Attachments = [
+            Attachments =
+            [
                 new StreamAttachmentBuilder()
                 {
                     Filename = "test.wav",
@@ -118,6 +120,7 @@ public sealed class WebhookTests
         });
         Assert.IsTrue(r.Success, r.Error?.Message);
     }
+
     [TestMethod]
     public async Task SendMessage()
     {
@@ -126,8 +129,8 @@ public sealed class WebhookTests
             Content = "Hello, World!",
             Username = "Test Username"
         }, wait: true);
-        
-        if(!r.Success) Assert.Fail(r.Error?.Message!);
+
+        if (!r.Success) Assert.Fail(r.Error?.Message!);
 
         this.MessageToEdit = r.Result;
     }
@@ -139,13 +142,10 @@ public sealed class WebhookTests
 
         Random rand = new();
         string text = $"Confirmation: {rand.Next()}";
-        var r = await Utils.CreateWebhook().EditMessageAsync(MessageToEdit!, modify =>
-        {
-            modify.Content = text;
-        });
-        
-        if(!r.Success) Assert.Fail(r.Error?.Message!);
-        if(r.Result?.Content != text) Assert.Fail("Content didn't change");
+        var r = await Utils.CreateWebhook().EditMessageAsync(MessageToEdit!, modify => { modify.Content = text; });
+
+        if (!r.Success) Assert.Fail(r.Error?.Message!);
+        if (r.Result?.Content != text) Assert.Fail("Content didn't change");
     }
 
     [TestMethod]

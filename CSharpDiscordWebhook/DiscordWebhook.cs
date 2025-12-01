@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -36,12 +37,12 @@ public class DiscordWebhook : IDisposable
     public async Task<WebhookResult<Webhook>> ModifyAsync(ModifyWebhookCallback callback)
     {
         var r = await GetAsync();
-        if(!r.Success) return r;
+        if (!r.Success) return r;
 
         var modify = new WebhookModify(r.Result!);
         callback(modify);
-        
-        return await SendJsonMessageAsync<Webhook, WebhookModify>(new("PATCH"), modify);
+
+        return await SendJsonMessageAsync<Webhook, WebhookModify>(new HttpMethod("PATCH"), modify);
     }
 
     /// <summary>
@@ -94,7 +95,7 @@ public class DiscordWebhook : IDisposable
         MessageModify modify = new(msg);
         callback(modify);
 
-        string queriesStr = withComponents ? "?with_components=true" : string.Empty;
+        var queriesStr = withComponents ? "?with_components=true" : string.Empty;
 
         if (modify.Attachments.Count == 0)
             return await EditJsonMessageAsync(modify, queriesStr);
@@ -112,10 +113,11 @@ public class DiscordWebhook : IDisposable
         using var msg = new HttpRequestMessage(HttpMethod.Delete, $"/messages/{id}");
         using var res = await Client.SendAsync(msg);
 
-        if (res.IsSuccessStatusCode) return new(true, null);
+        if (res.IsSuccessStatusCode) return new WebhookResult<bool>(true, null);
 
         using var s = await res.Content.ReadAsStreamAsync();
-        return new(false, await JsonSerializer.DeserializeAsync<ErrorMessage>(s, DefaultJsonOptions));
+        return new WebhookResult<bool>(false,
+            await JsonSerializer.DeserializeAsync<ErrorMessage>(s, DefaultJsonOptions));
     }
 
     /// <summary>
@@ -129,7 +131,7 @@ public class DiscordWebhook : IDisposable
         bool withComponents = false)
     {
         List<string> queries = new();
-        string queriesStr = string.Empty;
+        var queriesStr = string.Empty;
 
         if (wait) queries.Add("wait=true");
         if (withComponents) queries.Add("with_components=true");
@@ -150,19 +152,19 @@ public class DiscordWebhook : IDisposable
         Client.Dispose();
     }
 
-    async Task<WebhookResult<TResult>> SendJsonMessageAsync<TResult, TJson>(HttpMethod method, TJson json,
+    private async Task<WebhookResult<TResult>> SendJsonMessageAsync<TResult, TJson>(HttpMethod method, TJson json,
         string subPath = "")
     {
         using var req = new HttpRequestMessage(method, $"/{subPath}");
 
         // JsonContent is not available on .net standard 2.0
-        string jsonStr = JsonSerializer.Serialize(json, DefaultJsonOptions);
+        var jsonStr = JsonSerializer.Serialize(json, DefaultJsonOptions);
         req.Content = new StringContent(jsonStr, Encoding.UTF8, "application/json");
 
         return await SendAsync<TResult>(req);
     }
 
-    async Task<WebhookResult<Message?>> SendMessageWithAttachmentsAsync(MessageBuilder messageBuilder,
+    private async Task<WebhookResult<Message?>> SendMessageWithAttachmentsAsync(MessageBuilder messageBuilder,
         string queriesStr)
     {
         var content = new MultipartFormDataContent();
@@ -174,7 +176,7 @@ public class DiscordWebhook : IDisposable
         foreach (var attachment in messageBuilder.Attachments)
         {
             var stream = new StreamContent(attachment.Open());
-            stream.Headers.ContentType = new("application/octet-stream");
+            stream.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 
             content.Add(stream, $"files[{attachment.Id}]", attachment.Filename);
         }
@@ -189,18 +191,18 @@ public class DiscordWebhook : IDisposable
         return r;
     }
 
-    async Task<WebhookResult<Message>> EditJsonMessageAsync(MessageModify modify, string subPath)
+    private async Task<WebhookResult<Message>> EditJsonMessageAsync(MessageModify modify, string subPath)
     {
         using var req = new HttpRequestMessage(new HttpMethod("PATCH"), $"/messages/{modify.Id}{subPath}");
 
         // JsonContent is not available on .net standard 2.0
-        string jsonStr = JsonSerializer.Serialize(modify, DefaultJsonOptions);
+        var jsonStr = JsonSerializer.Serialize(modify, DefaultJsonOptions);
         req.Content = new StringContent(jsonStr, Encoding.UTF8, "application/json");
 
         return await SendAsync<Message>(req);
     }
 
-    async Task<WebhookResult<Message>> EditMessageWithAttachmentsAsync(MessageModify modify, string subPath)
+    private async Task<WebhookResult<Message>> EditMessageWithAttachmentsAsync(MessageModify modify, string subPath)
     {
         var content = new MultipartFormDataContent();
         var json = JsonSerializer.Serialize(modify, DefaultJsonOptions);
@@ -213,7 +215,7 @@ public class DiscordWebhook : IDisposable
             if (attachment.StreamProvider == null) continue;
 
             var stream = new StreamContent(attachment.StreamProvider.Open());
-            stream.Headers.ContentType = new("application/octet-stream");
+            stream.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 
             content.Add(stream, $"files[{attachment.Id}]", attachment.Filename);
         }
@@ -228,17 +230,17 @@ public class DiscordWebhook : IDisposable
         return r;
     }
 
-    async Task<WebhookResult<T>> SendAsync<T>(HttpRequestMessage request)
+    private async Task<WebhookResult<T>> SendAsync<T>(HttpRequestMessage request)
     {
         using var resp = await Client.SendAsync(request);
         using var s = await resp.Content.ReadAsStreamAsync();
 
         if (resp.IsSuccessStatusCode)
-        {
-            return new(s.Length > 0 ? await JsonSerializer.DeserializeAsync<T>(s, DefaultJsonOptions) : default, null);
-        }
+            return new WebhookResult<T>(
+                s.Length > 0 ? await JsonSerializer.DeserializeAsync<T>(s, DefaultJsonOptions) : default, null);
 
-        return new(default, await JsonSerializer.DeserializeAsync<ErrorMessage>(s, DefaultJsonOptions));
+        return new WebhookResult<T>(default,
+            await JsonSerializer.DeserializeAsync<ErrorMessage>(s, DefaultJsonOptions));
     }
 
     /// <summary>
@@ -258,25 +260,29 @@ public class DiscordWebhook : IDisposable
         Url = url;
         var handler = new DiscordWebhookHttpHandler(url)
         {
-            #if DEBUG
+#if DEBUG
             Proxy = new WebProxy("http://127.0.0.1:8080"),
             UseProxy = true
-            #endif
+#endif
         };
-        Client = new(handler);
-        Client.BaseAddress = new("https://discord.com/"); // Will be overriden by our handler
+        Client = new HttpClient(handler);
+        Client.BaseAddress = new Uri("https://discord.com/"); // Will be overriden by our handler
     }
+
     /// <summary>
     /// Create webhook wrapper from ID and Token
     /// </summary>
     /// <param name="id">Webhook ID</param>
     /// <param name="token">Webhook token</param>
-    public DiscordWebhook(ulong id, string token) : this(new Uri($"{API_PATH}/v{API_VERSION}/webooks/{id}/{token}")) { }
+    public DiscordWebhook(ulong id, string token) : this(new Uri($"{API_PATH}/v{API_VERSION}/webooks/{id}/{token}"))
+    {
+    }
 
     /// <summary>
     /// Webhook URL
     /// </summary>
     public Uri Url { get; }
+
     private HttpClient Client { get; }
 
     private static JsonSerializerOptions DefaultJsonOptions { get; } = new()
@@ -299,7 +305,7 @@ public class DiscordWebhook : IDisposable
     /// Base API path
     /// </summary>
     public const string API_PATH = "https://discord.com/api";
-    
+
     /// <summary>
     /// Default API version
     /// </summary>
@@ -309,18 +315,19 @@ public class DiscordWebhook : IDisposable
         new(@"https:\/\/discord.com\/api(\/v\d+)?\/webhooks\/(\d+)\/([\w\W]+)");
 }
 
-class DiscordWebhookHttpHandler(Uri basePath) : HttpClientHandler
+internal class DiscordWebhookHttpHandler(Uri basePath) : HttpClientHandler
 {
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+        CancellationToken cancellationToken)
     {
-        string abs = request.RequestUri.AbsolutePath;
+        var abs = request.RequestUri.AbsolutePath;
         if (abs.EndsWith("/"))
             abs = abs.Remove(abs.Length - 1);
-        
+
         StringBuilder sb = new();
         sb.Append(abs);
         sb.Append(request.RequestUri.Query);
-        
+
         request.RequestUri = new Uri(BasePath.AbsoluteUri + sb);
         return base.SendAsync(request, cancellationToken);
     }
@@ -332,6 +339,7 @@ class DiscordWebhookHttpHandler(Uri basePath) : HttpClientHandler
 /// Webhook message modify callback
 /// </summary>
 public delegate void ModifyMessageCallback(MessageModify modify);
+
 /// <summary>
 /// Webhook object modify callback
 /// </summary>

@@ -15,21 +15,22 @@ public class PollBuilderJsonSerializer : JsonConverter<PollBuilder>
     public override void Write(Utf8JsonWriter writer, PollBuilder value, JsonSerializerOptions options)
     {
         writer.WriteStartObject();
-        
+
         WritePollMediaObject(writer, "question", new PollMedia { Text = value.Question }, options);
-        
+
         writer.WritePropertyName("answers");
         writer.WriteStartArray();
         foreach (var answer in value.Answers)
         {
             writer.WriteStartObject();
-            WritePollMediaObject(writer, "poll_media", new PollMedia()
+            WritePollMediaObject(writer, "poll_media", new PollMedia
             {
                 Text = answer.Text,
                 Emoji = answer.Emoji
             }, options);
             writer.WriteEndObject();
         }
+
         writer.WriteEndArray();
 
         if (value.Duration.HasValue)
@@ -50,15 +51,16 @@ public class PollBuilderJsonSerializer : JsonConverter<PollBuilder>
             writer.WritePropertyName("layout");
             JsonSerializer.Serialize(writer, value.Layout, options);
         }
-        
+
         writer.WriteEndObject();
     }
 
-    void WritePollMediaObject(Utf8JsonWriter writer, string property, PollMedia media, JsonSerializerOptions options)
+    private void WritePollMediaObject(Utf8JsonWriter writer, string property, PollMedia media,
+        JsonSerializerOptions options)
     {
         writer.WritePropertyName(property);
         writer.WriteStartObject();
-        
+
         writer.WritePropertyName("text");
         writer.WriteStringValue(media.Text);
 
@@ -67,7 +69,7 @@ public class PollBuilderJsonSerializer : JsonConverter<PollBuilder>
             writer.WritePropertyName("emoji");
             JsonSerializer.Serialize(writer, media.Emoji, options);
         }
-        
+
         writer.WriteEndObject();
     }
 }

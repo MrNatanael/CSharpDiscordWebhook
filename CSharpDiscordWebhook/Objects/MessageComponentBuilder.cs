@@ -4,7 +4,7 @@ namespace CSharpDiscordWebhook.Objects;
 
 public abstract class MessageComponentBuilder
 {
-    public abstract int Type { get; } 
+    public abstract int Type { get; }
 }
 
 public class ActionRowComponentBuilder : MessageComponentBuilder
@@ -17,7 +17,9 @@ public class ButtonComponentBuilder : MessageComponentBuilder
 {
     public override int Type { get; } = 2;
     public ButtonComponentStyle Style { get; set; }
+
     public string? Label { get; set; }
+
     // TODO: EMOJI
     public string CustomId { get; set; } = string.Empty;
     public ulong? SkuId { get; set; }

@@ -15,15 +15,17 @@ public class WebhookResult<T>
         Error = error;
         Success = Error == null;
     }
-    
+
     /// <summary>
     /// API call output object
     /// </summary>
     public T? Result { get; }
+
     /// <summary>
     /// Error information
     /// </summary>
     public ErrorMessage? Error { get; }
+
     /// <summary>
     /// API call result
     /// </summary>
@@ -38,13 +40,18 @@ public class ErrorMessage
     /// <summary>
     /// Discord API error code
     /// </summary>
-    [JsonInclude] public int Code { get; private set; }
+    [JsonInclude]
+    public int Code { get; private set; }
+
     /// <summary>
     /// Discord API error message
     /// </summary>
-    [JsonInclude] public string Message { get; private set; } = string.Empty;
+    [JsonInclude]
+    public string Message { get; private set; } = string.Empty;
+
     /// <summary>
     /// Discord API error details
     /// </summary>
-    [JsonInclude] public Dictionary<string, string> Errors { get; private set; } = new();
+    [JsonInclude]
+    public Dictionary<string, string> Errors { get; private set; } = new();
 }

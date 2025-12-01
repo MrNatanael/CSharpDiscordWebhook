@@ -21,19 +21,24 @@ public class MessageModify
     /// <summary>
     /// Original message ID
     /// </summary>
-    [JsonIgnore] public ulong Id { get; }
+    [JsonIgnore]
+    public ulong Id { get; }
+
     /// <summary>
     /// New message content
     /// </summary>
     public string? Content { get; set; }
+
     /// <summary>
     /// New message embed list
     /// </summary>
     public List<EmbedBuilder> Embeds { get; set; } = new();
+
     /// <summary>
     /// New allowed mentions
     /// </summary>
     public AllowedMentions? AllowedMentions { get; set; }
+
     /// <summary>
     /// New message flags
     /// </summary>
@@ -50,17 +55,19 @@ public class AttachmentModify(ulong id, string filename)
 {
     public AttachmentModify(Attachment attachment) : this(attachment.Id, attachment.Filename)
     {
-        Parameters = new(attachment);
+        Parameters = new AttachmentParameters(attachment);
     }
-    
+
     /// <summary>
     /// The original attachment ID
     /// </summary>
     public ulong Id { get; } = id;
+
     /// <summary>
     /// The original attachment filename
     /// </summary>
     public string Filename { get; } = filename;
+
     public AttachmentParameters Parameters { get; set; } = new();
     public IAttachmentStreamProvider? StreamProvider { get; set; }
 }

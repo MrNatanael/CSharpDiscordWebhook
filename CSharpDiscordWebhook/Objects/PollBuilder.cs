@@ -5,11 +5,14 @@ namespace CSharpDiscordWebhook.Objects;
 
 public class PollBuilder
 {
-    public PollBuilder() { }
+    public PollBuilder()
+    {
+    }
+
     public PollBuilder(DateTime timestamp, Poll poll)
     {
         Question = poll.Question.Text;
-        foreach(var answer in poll.Answers)
+        foreach (var answer in poll.Answers)
             Answers.Add(answer.PollMedia.Text);
 
         Duration = poll.Expiry - timestamp;
@@ -21,18 +24,22 @@ public class PollBuilder
     /// The question of the poll. 
     /// </summary>
     public string Question { get; set; } = string.Empty;
+
     /// <summary>
     /// Each of the answers available in the poll, up to 10
     /// </summary>
     public List<PollAnswerBuilder> Answers { get; set; } = new();
+
     /// <summary>
     /// Number of hours the poll should be open for, up to 32 days. Defaults to 24
     /// </summary>
     public TimeSpan? Duration { get; set; }
+
     /// <summary>
     /// Whether a user can select multiple answers
     /// </summary>
     public bool AllowMultiselect { get; set; }
+
     /// <summary>
     /// The layout type of the poll
     /// </summary>
@@ -44,10 +51,13 @@ public class PollAnswerBuilder
     public string Text { get; set; } = string.Empty;
     public Emoji? Emoji { get; set; }
 
-    public static implicit operator PollAnswerBuilder(string s) => new() { Text = s };
+    public static implicit operator PollAnswerBuilder(string s)
+    {
+        return new PollAnswerBuilder { Text = s };
+    }
 }
 
 public enum PollLayoutType : int
 {
-    DEFAULT	= 1
+    DEFAULT = 1
 }

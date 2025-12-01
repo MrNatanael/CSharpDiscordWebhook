@@ -14,7 +14,7 @@ public class DiscordColorJsonSerializer : JsonConverter<Color>
 
     public override void Write(Utf8JsonWriter writer, Color value, JsonSerializerOptions options)
     {
-        uint rgba = (uint)((value.R << 16) | (value.G << 8) | value.B);
+        var rgba = (uint)((value.R << 16) | (value.G << 8) | value.B);
         writer.WriteNumberValue(rgba);
     }
 }

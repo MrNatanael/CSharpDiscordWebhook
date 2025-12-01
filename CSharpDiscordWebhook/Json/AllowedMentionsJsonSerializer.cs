@@ -7,10 +7,11 @@ namespace CSharpDiscordWebhook.Json;
 
 public class AllowedMentionsJsonSerializer : JsonConverter<AllowedMentionType?>
 {
-    public override AllowedMentionType? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override AllowedMentionType? Read(ref Utf8JsonReader reader, Type typeToConvert,
+        JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Null) return null;
-        
+
         switch (reader.GetString())
         {
             case "everyone": return AllowedMentionType.Everyone;
@@ -27,7 +28,7 @@ public class AllowedMentionsJsonSerializer : JsonConverter<AllowedMentionType?>
             writer.WriteNullValue();
             return;
         }
-        
+
         writer.WriteStringValue(value.Value.Value);
     }
 }

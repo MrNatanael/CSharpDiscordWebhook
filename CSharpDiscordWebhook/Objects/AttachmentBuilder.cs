@@ -10,13 +10,14 @@ public abstract class AttachmentBuilder : IAttachmentStreamProvider
 
     Stream IAttachmentStreamProvider.Open()
     {
-        return this.Open();
+        return Open();
     }
 
     /// <summary>
     /// Attachment id
     /// </summary>
     public uint Id { get; set; }
+
     /// <summary>
     /// Name of file attached
     /// </summary>
@@ -47,50 +48,62 @@ public class AttachmentParameters
         IsRemix =
             attachment.Flags.HasValue && attachment.Flags.Value.HasFlag(AttachmentFlags.IS_REMIX);
     }
+
     /// <summary>
     /// The title of the file
     /// </summary>
     public string? Title { get; set; }
+
     /// <summary>
     /// Description for the file (max 1024 characters)
     /// </summary>
     public string? Description { get; set; }
+
     /// <summary>
     /// The attachment's media type, see https://en.wikipedia.org/wiki/Media_type
     /// </summary>
     public string? MimeType { get; set; }
+
     /// <summary>
     /// Size of file in bytes
     /// </summary>
     public ulong? Size { get; set; }
+
     /// <summary>
     /// Source url of file
     /// </summary>
     public string? Url { get; set; }
+
     /// <summary>
     /// A proxied url of file
     /// </summary>
     public string? ProxyUrl { get; set; }
+
     /// <summary>
     /// Width of file (if image)
     /// </summary>
     public uint? Width { get; set; }
+
     /// <summary>
     /// Height of file (if image)
     /// </summary>
     public uint? Height { get; set; }
+
     /// <summary>
     /// Whether this attachment is ephemeral
     /// </summary>
     public bool? Ephemeral { get; set; }
+
     /// <summary>
     /// The duration of the audio file (currently for voice messages)
     /// </summary>
     public TimeSpan? Duration { get; set; }
+
     /// <summary>
     /// Base64 encoded bytearray representing a sampled waveform (currently for voice messages)
     /// </summary>
     public string? Waveform { get; set; }
+
     /// <summary>
     /// Attachment flags
     /// </summary>
@@ -132,6 +145,7 @@ public class FileAttachmentProvider : IAttachmentStreamProvider
     /// Source file
     /// </summary>
     public FileInfo? Source { get; set; }
+
     private FileStream? _fs;
 }
 
@@ -148,8 +162,11 @@ public class StreamAttachmentProvider : IAttachmentStreamProvider
     /// Returns the provided stream
     /// </summary>
     /// <returns>The provided stream</returns>
-    public Stream Open() => Stream!;
-    
+    public Stream Open()
+    {
+        return Stream!;
+    }
+
     /// <summary>
     /// Provided stream
     /// </summary>
@@ -169,7 +186,7 @@ public class FileAttachmentBuilder : AttachmentBuilder
     {
         _provider.Dispose();
     }
-    
+
     /// <summary>
     /// Open file stream
     /// </summary>
@@ -196,12 +213,19 @@ public class StreamAttachmentBuilder : AttachmentBuilder
     /// <summary>
     /// The provided stream is *NOT* disposed by this function, you need to dispose it yourself
     /// </summary>
-    public override void Dispose() => _provider.Dispose();
+    public override void Dispose()
+    {
+        _provider.Dispose();
+    }
+
     /// <summary>
     /// Returns the provided stream
     /// </summary>
     /// <returns>The provided stream</returns>
-    protected internal override Stream Open() => _provider.Open();
+    protected internal override Stream Open()
+    {
+        return _provider.Open();
+    }
 
     /// <summary>
     /// Provided stream
@@ -211,6 +235,7 @@ public class StreamAttachmentBuilder : AttachmentBuilder
         get => _provider.Stream;
         set => _provider.Stream = value;
     }
+
     private readonly StreamAttachmentProvider _provider = new();
 }
 
