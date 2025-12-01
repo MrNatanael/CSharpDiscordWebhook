@@ -57,6 +57,7 @@ public class EmbedBuilder
     public EmbedProviderBuilder? Provider { get; set; }
     public EmbedAuthorBuilder? Author { get; set; }
     public List<EmbedFieldBuilder>? Fields { get; set; }
+    public List<EmbedFieldBuilder> Fields { get; set; } = new();
 }
 
 public class EmbedFooterBuilder
