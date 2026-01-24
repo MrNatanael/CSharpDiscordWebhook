@@ -14,6 +14,8 @@
         <PackageDescription>A simple C# wrapper for Discord webhooks</PackageDescription>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/MrNatanael/CSharpDiscordWebhook</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
