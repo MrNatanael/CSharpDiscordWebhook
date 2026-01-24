@@ -252,7 +252,7 @@ public class DiscordWebhook : IDisposable
     {
         var match = _uriValidator.Match(url.AbsoluteUri);
         if (!match.Success)
-            throw new FormatException("Invalid webhook url format");
+            throw new FormatException("Invalid webhook url format: The expected format is 'https://discord.com/api/webhooks/<id>/<token>'.");
 
         if (!match.Groups[1].Success)
             url = new Uri($"{API_PATH}/v{API_VERSION}/webhooks/{match.Groups[2].Value}/{match.Groups[3].Value}");
